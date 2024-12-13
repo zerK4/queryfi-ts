@@ -4,6 +4,10 @@
   "description": "The flexible typescript query builder.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zerK4/queryfi-ts"
+  },
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf dist",

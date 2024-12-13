@@ -1,14 +1,21 @@
 module.exports = {
   branches: ['main'],
-  repositoryUrl: 'https://github.com/zerK4/queryfi-ts',
+  repositoryUrl: 'https://github.com/zerK4/queryfi-ts.git',
   plugins: [
-    '@semantic-release/commit-analyzer', // Analyze commit messages
-    '@semantic-release/release-notes-generator', // Generate release notes
+    '@semantic-release/commit-analyzer', // Analyze commits
+    '@semantic-release/release-notes-generator', // Generate changelogs
     '@semantic-release/changelog', // Update CHANGELOG.md
-    '@semantic-release/npm', // Publish to npm
-    '@semantic-release/github', // Create GitHub release
     [
-      '@semantic-release/git',
+      '@semantic-release/npm', // Publish to npm
+      {
+        npmPublish: true,
+        pkgRoot: 'dist', // Built package directory
+        tarballDir: 'release',
+      },
+    ],
+    '@semantic-release/github', // GitHub releases
+    [
+      '@semantic-release/git', // Git commits
       {
         assets: ['package.json', 'CHANGELOG.md'],
         message:
