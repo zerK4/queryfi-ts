@@ -1,5 +1,3 @@
-import { z } from 'zod';
-
 export type Primitive = string | number | boolean | null | undefined;
 
 export type QueryParamValue =
@@ -73,9 +71,4 @@ export type QueryBuilderOptions = {
    * Provide a base url to be used for all queries
    */
   baseUrl?: string;
-
-  /**
-   * Validation schema for query parameters
-   */
-  validation?: z.ZodSchema;
 };

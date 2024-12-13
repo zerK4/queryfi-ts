@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import {
   AllowedOperators,
   ExtractRelations,
@@ -19,7 +18,6 @@ class QueryBuilder<T extends Record<string, any>> {
     this.basePath = basePath;
     this.options = {
       transformer: (params) => params,
-      validation: z.any(),
       ...options,
     };
   }
@@ -239,16 +237,6 @@ class QueryBuilder<T extends Record<string, any>> {
     const transformedParams = this.options.transformer
       ? this.options.transformer(this.queryParams)
       : this.queryParams;
-
-    // Optional validation if a schema is provided
-    if (this.options.validation) {
-      try {
-        this.options.validation.parse(transformedParams);
-      } catch (error) {
-        console.error('Query parameter validation failed', error);
-        throw error;
-      }
-    }
 
     // Build query string
     const params = new URLSearchParams();
