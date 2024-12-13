@@ -21,11 +21,6 @@
     "prepare": "husky",
     "release": "semantic-release"
   },
-  "files": [
-    "dist/**/*",
-    "README.md",
-    "LICENSE"
-  ],
   "lint-staged": {
     "*.{js,ts}": [
       "prettier --write",

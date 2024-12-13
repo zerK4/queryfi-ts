@@ -15,7 +15,7 @@ module.exports = {
       '@semantic-release/npm', // Publish to npm
       {
         npmPublish: true,
-        pkgRoot: 'dist', // Built package directory
+        pkgRoot: './dist', // Built package directory
         tarballDir: 'release',
       },
     ],
@@ -23,9 +23,14 @@ module.exports = {
     [
       '@semantic-release/git', // Git commits
       {
-        assets: ['package.json', 'CHANGELOG.md'],
+        assets: [
+          'package.json',
+          'CHANGELOG.md',
+          'CHANGELOG.md',
+          'dist/**/*.{js}',
+        ],
         message:
-          'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
+          'chore: Release ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
       },
     ],
   ],
