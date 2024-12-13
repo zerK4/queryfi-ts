@@ -1,7 +1,7 @@
 {
   "name": "queryfi",
   "version": "0.1.0",
-  "description": "The flexible typescript query builder.",
+  "description": "Meet **Queryfi** – the powerful package that enhances your API interactions with Laravel, offering the flexibility to build dynamic queries directly from your frontend, be it React or any other framework.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": {
