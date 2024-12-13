@@ -1,5 +1,11 @@
 module.exports = {
-  branches: ['main'],
+  branches: [
+    'main',
+    {
+      name: 'next',
+      prerelease: true,
+    },
+  ],
   repositoryUrl: 'https://github.com/zerK4/queryfi-ts.git',
   plugins: [
     '@semantic-release/commit-analyzer', // Analyze commits
