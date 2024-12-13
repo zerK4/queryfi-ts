@@ -7,11 +7,6 @@ on:
       - next
   workflow_dispatch: # Manual trigger if needed
 
-permissions:
-  content: write
-  issues: write
-  pull-requests: write
-
 jobs:
   release:
     runs-on: ubuntu-latest
