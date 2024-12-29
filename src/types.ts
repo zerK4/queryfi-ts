@@ -37,9 +37,9 @@ export type SelectColumns<T> =
 // Modify the RelationQueryModifier type
 export type RelationQueryModifier<T> = {
   where?: Array<[keyof ExtractRelations<T>, AllowedOperators, any]>;
-  orderBy?: OrderByInput<T> | OrderByInput<T>[];
+  orderBy?: OrderByInput<T> | OrderByInput<T>[] | OrderByInput<any>;
   limit?: number;
-  select?: SelectColumns<T>;
+  // select?: SelectColumns<T>; // TODO: To be done.
 };
 
 /**

@@ -168,12 +168,11 @@ class QueryBuilder<T extends Record<string, any>> {
         modifiers.orderBy.forEach((order, index) => {
           if (typeof order === 'string') {
             const [column, direction = 'asc'] = order.split(':');
-            this.queryParams[`${orderByKey}[${index}][column]`] = column;
-            this.queryParams[`${orderByKey}[${index}][direction]`] = direction;
+            this.queryParams[`${orderByKey}[${index}]`] =
+              `${column},${direction}`;
           } else if (Array.isArray(order)) {
-            this.queryParams[`${orderByKey}[${index}][column]`] = order[0];
-            this.queryParams[`${orderByKey}[${index}][direction]`] =
-              order[1] || 'asc';
+            this.queryParams[`${orderByKey}[${index}]`] =
+              `${order[0]},${order[1] || 'asc'}`;
           }
         });
       } else if (typeof modifiers.orderBy === 'string') {
@@ -188,12 +187,12 @@ class QueryBuilder<T extends Record<string, any>> {
     }
 
     // Handle select
-    if (modifiers.select) {
-      const selectColumns = Array.isArray(modifiers.select)
-        ? modifiers.select.join(',')
-        : String(modifiers.select);
-      this.queryParams[`query_${String(relation)}[select]`] = selectColumns;
-    }
+    // if (modifiers.select) {
+    //   const selectColumns = Array.isArray(modifiers.select)
+    //     ? modifiers.select.join(',')
+    //     : String(modifiers.select);
+    //   this.queryParams[`query_${String(relation)}[select]`] = selectColumns;
+    // }
 
     return this;
   }
