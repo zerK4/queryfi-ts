@@ -71,4 +71,6 @@ export type QueryBuilderOptions = {
    * Provide a base url to be used for all queries
    */
   baseUrl?: string;
+
+  defaultPathParams?: Record<string, any>;
 };

@@ -14,12 +14,37 @@ class QueryBuilder<T extends Record<string, any>> {
   private queryParams: Record<string, any> = {};
   private options: QueryBuilderOptions;
 
+  private static defaultOptions: QueryBuilderOptions = {
+    baseUrl: undefined,
+    transformer: (params) => params,
+    defaultPathParams: {},
+  };
+
   constructor(basePath: string, options: QueryBuilderOptions = {}) {
     this.basePath = basePath;
     this.options = {
       transformer: (params) => params,
       ...options,
     };
+
+    if (QueryBuilder.defaultOptions.defaultPathParams) {
+      this.pathParams = { ...QueryBuilder.defaultOptions.defaultPathParams };
+    }
+  }
+
+  /** Set default options for all QueryBuilder instances */
+  static setDefaultOptions(options: QueryBuilderOptions): void {
+    QueryBuilder.defaultOptions = {
+      ...QueryBuilder.defaultOptions,
+      ...Object.fromEntries(
+        Object.entries(options).filter(([_, value]) => value !== undefined)
+      ),
+    };
+  }
+
+  /** Get current default options */
+  static getDefaultOptions(): QueryBuilderOptions {
+    return { ...QueryBuilder.defaultOptions };
   }
 
   /** Adds relations to be included in the query */
@@ -206,12 +231,26 @@ class QueryBuilder<T extends Record<string, any>> {
     return this;
   }
 
+  /**
+   * `first` method will allow you to return
+   * an object containing the data.
+   *
+   * Used with `Laravel` it should get only the
+   *  first matching object from the queried model.
+   */
   first(): string {
     this.queryParams.getter = 'first';
 
     return this.build();
   }
 
+  /**
+   * `get` method will allow you wo return
+   *  an array of objects containing the matching data.
+   *
+   * Used with `Laravel` it should get an array with all
+   *  the matching data from the queried model.
+   */
   get(): string {
     this.queryParams.getter = 'get';
 
@@ -220,20 +259,27 @@ class QueryBuilder<T extends Record<string, any>> {
 
   /** Builds the final URL with all path and query parameters */
   build(): string {
-    const url = this.options.baseUrl?.replace(/\/+$/, '') ?? '';
+    // Get the base URL from instance options or fall back to default options
+    const baseUrl = this.options.baseUrl || QueryBuilder.defaultOptions.baseUrl;
+    const url = baseUrl?.replace(/\/+$/, '') ?? '';
     let path = this.basePath;
 
-    // Replace path parameters first
+    const allPathParams = {
+      ...QueryBuilder.defaultOptions.defaultPathParams,
+      ...this.pathParams,
+    };
+
+    // Replace path parameters
     for (const [key, value] of Object.entries(this.pathParams)) {
       path = path.replace(`{${key}}`, encodeURIComponent(String(value)));
     }
 
     path = path.replace(/^\/+|\/+$/g, '');
 
-    // If no base URL is provided, use the path as-is
+    // Build full URL using the resolved base URL
     const fullUrl = url ? `${url}/${path}` : path;
 
-    // Apply any parameter transformations
+    // Apply transformations
     const transformedParams = this.options.transformer
       ? this.options.transformer(this.queryParams)
       : this.queryParams;
@@ -241,7 +287,6 @@ class QueryBuilder<T extends Record<string, any>> {
     // Build query string
     const params = new URLSearchParams();
     Object.entries(transformedParams).forEach(([key, value]) => {
-      // Handle array and object values
       if (
         Array.isArray(value) ||
         (typeof value === 'object' && value !== null)
