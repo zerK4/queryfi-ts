@@ -57,15 +57,16 @@ class QueryBuilder<T extends Record<string, any>> {
   }
 
   /** Flexible where clause supporting multiple formats */
-  where(
+  private buildWhereConditions(
     conditions:
       | { [K in keyof T]?: T[K] }
-      | Array<[keyof T, AllowedOperators, any]>
+      | Array<[keyof T, AllowedOperators, any]>,
+    type: 'where' | 'orWhere'
   ): this {
     // If conditions are an object, handle simple key-value pairs
     if (typeof conditions === 'object' && !Array.isArray(conditions)) {
       Object.entries(conditions).forEach(([key, value]) => {
-        this.queryParams[`where[${key}]`] = value;
+        this.queryParams[`${type}[${key}]`] = value;
       });
     }
     // If conditions are an array, handle more complex where clauses
@@ -73,30 +74,52 @@ class QueryBuilder<T extends Record<string, any>> {
       conditions.forEach((condition) => {
         // @ts-expect-error FIXME: to be fixed
         if (condition.length === 2) {
-          // Simple key-value pair
-
           // @ts-expect-error FIXME: to be fixed
-          this.queryParams[`where[${condition[0]}]`] = condition[1];
+          this.queryParams[`${type}[${condition[0]}]`] = condition[1];
         } else if (condition.length === 3) {
           const isArray = Array.isArray(condition[2]);
 
           if (isArray) {
             // Handle array conditions
             // @ts-expect-error FIXME: to be fixed
-            const key = `where[${condition[0]}][${condition[1]}]`;
+            const key = `${type}[${condition[0]}][${condition[1]}]`;
 
             // Directly assign the entire array instead of individual iterations
             this.queryParams[key] = (condition[2] as []).join(',');
           } else {
-            // Handle non-array single value conditions
             // @ts-expect-error FIXME: to be fixed
-            const key = `where[${condition[0]}][${condition[1]}]`;
+            const key = `${type}[${condition[0]}][${condition[1]}]`;
             this.queryParams[key] = condition[2];
           }
         }
       });
     }
     return this;
+  }
+
+  where(
+    conditions:
+      | { [K in keyof T]?: T[K] }
+      | Array<[keyof T, AllowedOperators, any]>
+  ): this {
+    return this.buildWhereConditions(conditions, 'where');
+  }
+
+  orWhere(
+    conditions:
+      | { [K in keyof T]?: T[K] }
+      | Array<[keyof T, AllowedOperators, any]>
+  ): this | null {
+    // Check if any where conditions exist
+    const hasWhereConditions = Object.keys(this.queryParams).some((key) =>
+      key.startsWith('where')
+    );
+
+    if (!hasWhereConditions) {
+      return this.buildWhereConditions(conditions, 'where');
+    }
+
+    return this.buildWhereConditions(conditions, 'orWhere');
   }
 
   orderBy(
@@ -252,6 +275,12 @@ class QueryBuilder<T extends Record<string, any>> {
    */
   get(): string {
     this.queryParams.getter = 'get';
+
+    return this.build();
+  }
+
+  count(): string {
+    this.queryParams.action = 'count';
 
     return this.build();
   }

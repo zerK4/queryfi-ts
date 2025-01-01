@@ -36,7 +36,11 @@ describe('QueryBuilder Basic Functionality', () => {
   });
 
   test('should create a basic query with where clause', () => {
-    const query = createQuery<User>(baseUrl).where({ status: 'active' }).get();
+    const query = createQuery<User>(baseUrl)
+      .where({
+        status: 'active',
+      })
+      .get();
 
     const decodedQuery = decodeURIComponent(query);
 
