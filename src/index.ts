@@ -50,8 +50,17 @@ class QueryBuilder<T extends Record<string, any>> {
   /** Adds relations to be included in the query */
   with(relations: ExtractRelations<T> | ExtractRelations<T>[]): this {
     const relationString = Array.isArray(relations)
-      ? relations.join(',')
+      ? relations
+          .map((relation) => {
+            if (typeof relation === 'string' && relation.includes(',')) {
+              const [mainRelation, nestedRelations] = relation.split('.');
+              return `${mainRelation}[${nestedRelations.replace(',', '&')}]`;
+            }
+            return String(relation);
+          })
+          .join(',')
       : String(relations);
+
     this.queryParams.with = relationString;
     return this;
   }
