@@ -230,13 +230,18 @@ class QueryBuilder<T extends Record<string, any>> {
   }
 
   /** Select specific columns */
-  select(columns: (keyof T)[] | keyof T): this {
-    const selectColumns = Array.isArray(columns)
-      ? columns.join(',')
-      : String(columns);
-    this.queryParams.select = selectColumns;
+  select = (columns: (keyof T)[] | keyof T): this => {
+    const newColumns = Array.isArray(columns) ? columns : [columns];
+
+    // Combine new columns with existing ones in queryParams.select
+    const existingColumns = this.queryParams.select
+      ? this.queryParams.select.split(',')
+      : [];
+    const allColumns = [...new Set([...existingColumns, ...newColumns])]; // Combine and remove duplicates
+
+    this.queryParams.select = allColumns.join(','); // Update queryParams with the combined columns
     return this;
-  }
+  };
 
   /** Pagination support */
   /**
@@ -293,6 +298,15 @@ class QueryBuilder<T extends Record<string, any>> {
 
     return this.build();
   }
+
+  mutator = <R extends (qb: QueryBuilder<T>) => Record<string, any>>(
+    mutatorFunc: R
+  ): this => {
+    // Call the function with the current builder instance to get the updated params
+    const updatedParams = mutatorFunc(this);
+
+    return this;
+  };
 
   /** Builds the final URL with all path and query parameters */
   build(): string {
